@@ -9,6 +9,10 @@ nav:
 
 <code src="./demo/simple.tsx"></code>
 
+## allowClear
+
+<code src="./demo/allowClear.tsx"></code>
+
 ## combination-key-format
 
 <code src="./demo/combination-key-format.tsx"></code>

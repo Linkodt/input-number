@@ -73,6 +73,7 @@ export interface InputNumberProps<T extends ValueType = ValueType>
   max?: T;
   step?: ValueType;
   tabIndex?: number;
+  allowClear?: boolean;
   controls?: boolean;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
@@ -134,7 +135,7 @@ const InternalInputNumber = React.forwardRef(
       keyboard,
       changeOnWheel = false,
       controls = true,
-
+      allowClear = false,
       stringMode,
 
       parser,
@@ -525,6 +526,31 @@ const InternalInputNumber = React.forwardRef(
       shiftKeyRef.current = false;
     };
 
+    const renderClearBtn = React.useCallback(() => {
+        if (!allowClear) {
+          return null;
+        }
+        return (
+          <button
+            type="button"
+            tabIndex={-1}
+            className={clsx(`${prefixCls}-clear-icon`, {
+              [`${prefixCls}-clear-icon-hidden`]: disabled || readOnly,
+            })}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              // For uncontrolled, reset to defaultValue if provided; otherwise clear to empty (null)
+              const next = value === undefined && defaultValue !== undefined
+                ? getMiniDecimal(defaultValue as any)
+                : getMiniDecimal('');
+              triggerValueUpdate(next, false);
+            }}
+          >
+            {'✖'}
+          </button>
+        );
+    }, [allowClear, disabled, readOnly, value, defaultValue, triggerValueUpdate]);
+
     React.useEffect(() => {
       if (changeOnWheel && focus) {
         const onWheel = (event) => {
@@ -633,6 +659,7 @@ const InternalInputNumber = React.forwardRef(
             disabled={disabled}
             readOnly={readOnly}
           />
+          {renderClearBtn()}
         </div>
       </div>
     );
@@ -652,6 +679,7 @@ const InputNumber = React.forwardRef<InputNumberRef, InputNumberProps>((props, r
     className,
     classNames,
     styles,
+    allowClear,
     ...rest
   } = props;
 
@@ -698,6 +726,7 @@ const InputNumber = React.forwardRef<InputNumberRef, InputNumberProps>((props, r
         <InternalInputNumber
           prefixCls={prefixCls}
           disabled={disabled}
+          allowClear={allowClear}
           ref={inputFocusRef}
           domRef={inputNumberDomRef}
           className={classNames?.input}
